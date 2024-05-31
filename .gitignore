@@ -4,6 +4,7 @@
 
 # Session Data files
 .RData
+.Rproj
 .RDataTmp
 
 # User-specific files
