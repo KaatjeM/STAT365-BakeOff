@@ -104,20 +104,6 @@ ratings_subset <- ratings|>
 ```
 
 
-```{r}
-#| label: data-analysis
-# you might choose to run your analysis here or in a separate script. Save your output for later.
-
-## T-TEST
-t.test(formula = x ~ y, x = ratings_new$viewers_7day, y = ratings_new$finale, alternative = "greater")
-
-
-## LINEAR MODELS
-bakeoff_early_fit <- lm(viewers_7day ~ series, data = ratings_subset)
-
-bakeoff_fit <- lm(viewers_7day ~ series, data = ratings)
-
-```
 
 ## Introduction {#intro}
 Season after season, the “Great British Bake Off” is loved by its fans – but are all series and episodes of the show created equal? Or is there a secret ingredient to the show’s success? “The Great British Bake Off” (GBBO) is a popular baking show that has run from 2010 to present, and features ten to twelve amateur bakers that hail from the Great Britain area. We examined two different trends within viewership of this show. The first investigates if there is a statistically significant difference in finale viewership compared to other episodes. The second discusses the series 8 changes within production of the show and consequences on viewership. In order to gain a better understanding of these questions, we used a t-test and linear models to look at datasets created by Alison Hill, Chester Ismay, and Richard Iannone, consisting of data collected from Wikipedia and PBS.  
@@ -139,6 +125,21 @@ We used many different methods of analysis. Firstly, this included a t-test to d
 Next, we applied two linear models to our data, one to a subset of our data from the first seven series, and a second one onto the full data. As part of this analysis, we looked at the comparative r-squared values for both of the linear models, and the p-value from a model utility test. We also compared the coefficients for the intercepts and slopes of the models.
 
 ## Results {#results}
+
+```{r}
+#| label: data-analysis
+# you might choose to run your analysis here or in a separate script. Save your output for later.
+
+## T-TEST
+t.test(formula = x ~ y, x = ratings_new$viewers_7day, y = ratings_new$finale, alternative = "greater")
+
+
+## LINEAR MODELS
+bakeoff_early_fit <- lm(viewers_7day ~ series, data = ratings_subset)
+
+bakeoff_fit <- lm(viewers_7day ~ series, data = ratings)
+
+```
 
 ```{r}
 #| label: fig-finale-viewership-plot
