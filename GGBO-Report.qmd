@@ -37,7 +37,6 @@ bibliography: references.bib
 ```{r}
 #| label: setup
 library(tidyverse)
-library(palmerpenguins)
 ```
 
 ```{r}
@@ -52,8 +51,6 @@ library(palmerpenguins)
 
 ## Introduction {#intro}
 
-According to @tuan2015, it is said to xxx. Supported by this we found xyz [@wiwanitkit2010dengue].
-
 ## Data and Methods
 
 ### Data Collection
@@ -62,11 +59,6 @@ According to @tuan2015, it is said to xxx. Supported by this we found xyz [@wiwa
 
 ## Results {#results}
 
-You could use in line code to provide results such as: Information about `r nrow(penguins)` penguins were collected and made available by Dr. Kristen Gorman and the Palmer Station, Antarctica LTER, a member of the Long Term Ecological Research Network.
-
-As shown in @fig-penguin-plot, we can see abc. See <https://quarto.org/docs/authoring/cross-references.html> for more about cross referencing plots.
-
-Note! To cross reference a figure, the label must start with fig-xxx.
 
 ```{r}
 #| label: fig-penguin-plot
@@ -94,9 +86,6 @@ palmerpenguins::penguins |>
        shape = "Species"
        )
 ```
-Supported by @tbl-penguin-summary, we can see abc. See <https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf> for more about styling tables.
-
-Note! To cross reference a table, the label must start with tbl-xxx.
 
 ```{r}
 #| label: tbl-penguin-summary
@@ -117,7 +106,7 @@ palmerpenguins::penguins |>
 ```
 
 ## Discussion {#discussion}
- 
+
 ## Conclusion {#conclusion}
 
 ## References {.unnumbered}
