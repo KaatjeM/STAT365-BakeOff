@@ -1,5 +1,5 @@
 ---
-title: "Title of Report"
+title: "The Great British Bake-Off"
 date: last-modified
 date-format: "MMMM D, YYYY"
 author: 
@@ -37,16 +37,79 @@ bibliography: references.bib
 ```{r}
 #| label: setup
 library(tidyverse)
+library(here)
+library(kableExtra)
+
+
+ratings <- read_csv("ratings.csv")
+
 ```
+
 
 ```{r}
 #| label: data-cleaning
-# this is where you might put some data cleaning steps
+
+
+## ADDING INDICATOR VARIABLE
+finale_episodes <- ratings|>
+  group_by(series)|>
+  slice_max(order_by = episode)|>
+  ungroup()|>
+  mutate(
+    finale = TRUE
+  )
+
+non_finale_episodes <- ratings |>
+  anti_join(finale_episodes)|>
+  mutate(
+    finale = FALSE
+  )
+ratings_new <- non_finale_episodes |>
+  full_join(finale_episodes)
+
+
+non<- non_finale_episodes|>
+  summarise(
+    type = "Non Finale Episodes",
+    mean = mean(viewers_7day),
+    sd = sd(viewers_7day),
+    median = median(viewers_7day),
+    q1 = quantile(viewers_7day,probs = .25),
+    q3 = quantile(viewers_7day,probs = .75)
+    
+  )
+
+fin <- finale_episodes|>
+  summarise(
+    type = "Finale Episodes",
+    mean = mean(viewers_7day),
+    sd = sd(viewers_7day),
+    median = median(viewers_7day),
+    q1 = quantile(viewers_7day,probs = .25),
+    q3 = quantile(viewers_7day,probs = .75)
+  )
+
+ratings_subset <- ratings|>
+  filter(series <8)
+
+
+
 ```
+
 
 ```{r}
 #| label: data-analysis
 # you might choose to run your analysis here or in a separate script. Save your output for later.
+
+## T-TEST
+t.test(formula = x ~ y, x = ratings_new$viewers_7day, y = ratings_new$finale, alternative = "greater")
+
+
+## LINEAR MODELS
+bakeoff_early_fit <- lm(viewers_7day ~ series, data = ratings_subset)
+
+bakeoff_fit <- lm(viewers_7day ~ series, data = ratings)
+
 ```
 
 ## Introduction {#intro}
@@ -61,48 +124,68 @@ library(tidyverse)
 
 
 ```{r}
-#| label: fig-penguin-plot
+#| label: fig-finale-viewership-plot
 #| fig-cap: "Your figure caption."
 #| fig-alt: "Your figure alternative text."
 #| fig-align: center
 #| fig-pos: "H"
 
-palmerpenguins::penguins |> 
-  ggplot(aes(x = bill_length_mm,
-             y = bill_depth_mm,
-             color = species,
-             shape = species
-             )
-         ) +
-  geom_point(alpha = 0.8) +
-  scale_x_continuous(limits = c(30,60), breaks = seq(20,60,10)) +
-  scale_y_continuous(limits = c(10,25), breaks = seq(10,25,5)) +
-  scale_color_brewer(palette = "Dark2") +
-  theme_bw() +
-  labs(title = "Plot title goes here",
-       x = "Bill Length (mm)",
-       y = "Bill Depth (mm)",
-       color = "Species",
-       shape = "Species"
-       )
+ratings_new|>
+  ggplot(mapping = aes(x = factor(series)))+
+  geom_jitter(mapping = aes(y = viewers_7day, color = finale),
+              width = 0.2, height = 0, alpha = 0.5)+
+  theme_bw()+
+  labs(
+    x = "Series",
+    y = NULL,
+    subtitle = "Finale Episodes see larger viewership over 7 days than Non Finale episodes",
+    title = "Tuning In When There's No Next Week: Finales tend to see higher viewership"
+  )+
+  scale_color_manual(values = c("steelblue", "goldenrod3"))
+
+
 ```
 
 ```{r}
-#| label: tbl-penguin-summary
+#| label: tbl-finale-viewership-summary
 #| tbl-cap: "Put caption here."
 #| tbl-pos: "H"
 
-palmerpenguins::penguins |> 
-  group_by(species) |> 
-  summarize(avg_bill_length = mean(bill_length_mm, na.rm = T),
-            sd_bill_length = sd(bill_length_mm, na.rm = T)
-            ) |> 
-  kableExtra::kbl(digits = 1,
-                  col.names = c("Species", 
-                                "Average Bill Length (mm)",
-                                "Standard Deviation of Bill Length (mm)"),
-                  booktabs = TRUE
-                  )
+
+non |>
+  full_join(fin)|>
+  kable(
+    format = "pipe",
+    align = "l",
+    caption = "Summary Stats for Non Finale and Finale Episodes"
+  )
+```
+
+
+```{r}
+#| label: fig-linear-model-viewership-plot
+#| fig-cap: "Graph of viewership for every episode with two lines projected onto it. Blue line is projected onto the graph showing the subsetted linear model. Yellow line is projected onto the line showing the full linear model. This graph shows how the subsetting linear model fits the first seven series extremely well, showing that series 8, 9, and 10 have a different trend."
+#| fig-alt: "Your figure alternative text."
+#| fig-align: center
+#| fig-pos: "H"
+
+ratings |>
+  ggplot(mapping = aes(x = factor(series), y = viewers_7day))+
+  geom_jitter(width = 0.2, height = 0, shape = 1)+
+  geom_abline(
+    slope = 1.97278, intercept = -0.08880, col = "steelblue"
+              )+
+  geom_abline(
+    slope = 0.76636, intercept = 4.16083, col = "goldenrod3"
+    )+
+  theme_bw()+
+  labs(
+    x = "Series",
+    y = NULL,
+    subtitle = "Our two linear models have been projected onto this model \nfor contrast",
+    title = "Viewership after 7 days of Episode Release by Series"
+  )
+  
 ```
 
 ## Discussion {#discussion}
