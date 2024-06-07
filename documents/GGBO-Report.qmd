@@ -43,7 +43,7 @@ library(kableExtra)
 library(broom)
 
 
-ratings <- read_csv(here("./data/ratings.csv"))
+ratings <- read_csv(here("data/raw/ratings.csv"))
 
 ```
 
