@@ -34,3 +34,10 @@ viewership_summary <- non |>
     align = "l",
     caption = "Summary Stats for Non Finale and Finale Episodes"
   )
+
+
+### T-tests
+# For p-value
+t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "less")
+# For CI
+t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "two.sided")

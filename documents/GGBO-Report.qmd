@@ -37,94 +37,11 @@ bibliography: references.bib
 
 ```{r}
 #| label: setup
-library(tidyverse)
 library(here)
-library(kableExtra)
-library(broom)
 
-
-ratings <- read_csv(here("data/raw/ratings.csv"))
-
-```
-
-```{r}
-#| label: data-cleaning
-
-
-## ADDING INDICATOR VARIABLE
-finale_episodes <- ratings|>
-  group_by(series)|>
-  slice_max(order_by = episode)|>
-  ungroup()|>
-  mutate(
-    finale = TRUE
-  )
-
-non_finale_episodes <- ratings |>
-  anti_join(finale_episodes)|>
-  mutate(
-    finale = FALSE
-  )
-
-ratings_new <- non_finale_episodes |>
-  full_join(finale_episodes)|>
-  mutate(
-    finale = as.character(finale)
-  )
-
-## Summary Stats for Q1
-non<- non_finale_episodes|>
-  summarise(
-    type = "Non Finale Episodes",
-    mean = round(mean(viewers_7day), digits = 3),
-    sd = round(sd(viewers_7day), digits = 3),
-    median = round(median(viewers_7day), digits = 3),
-    q1 = round(quantile(viewers_7day,probs = .25), digits = 3),
-    q3 = round(quantile(viewers_7day,probs = .75), digits = 3),
-    observations = n()
-  )
-
-fin <- finale_episodes|>
-  summarise(
-    type = "Finale Episodes",
-    mean = round(mean(viewers_7day), digits = 3),
-    sd = round(sd(viewers_7day), digits = 3),
-    median = round(median(viewers_7day), digits = 3),
-    q1 = round(quantile(viewers_7day,probs = .25), digits = 3),
-    q3 = round(quantile(viewers_7day,probs = .75), digits = 3),
-    observations = n()
-  )
-
-
-## Ratings subset for linear models
-ratings_subset <- ratings|>
-  filter(series <8)
-
-
-
-
-
-
-```
-
-
-```{r}
-#| label: data-analysis
-#| output: false
-# you might choose to run your analysis here or in a separate script. Save your output for later.
-
-## T-TEST
-t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "less")
-
-t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "two.sided")
-
-
-
-## LINEAR MODELS
-bakeoff_early_fit <- lm(viewers_7day ~ series, data = ratings_subset)
-
-bakeoff_fit <- lm(viewers_7day ~ series, data = ratings)
-
+source(here("scripts/SummaryStats.R"))
+source(here("scripts/LinearModels.R"))
+source(here("scripts/Graphics.R"))
 ```
 
 ## Introduction {#intro}
@@ -162,14 +79,7 @@ Firstly, we examined if there was a difference in finale vs non-finale viewershi
 #| tbl-cap: "This table displays summary statisitcs for non-finale episodes and finale episodes. These summary statistics are as follows: mean, standard deviation, median, quartile 1 and quartile 3."
 #| tbl-pos: "H"
 
-
-non |>
-  full_join(fin)|>
-  kable(
-    format = "pipe",
-    align = "l",
-    caption = "Summary Stats for Non Finale and Finale Episodes"
-  )
+viewership_summary
 ```
 As the table shows, the finale episodes have a higher mean and median viewership than non-finale episodes. However, finale episodes have more variation than the non-finale episodes, which does make sense, as there is much more non-finale episodes (84 non-finale episodes versus 10 finale episodes). 
 
@@ -184,22 +94,7 @@ To get a better understanding of the distribution of viewership across the serie
 #| fig-align: center
 #| fig-pos: "H"
 
-ratings_new|>
-  ggplot(mapping = aes(x = factor(series)))+
-  geom_jitter(mapping = aes(y = viewers_7day, color = finale, shape = finale),
-              width = 0.2, height = 0, weight = 4, show.legend = FALSE)+
-  theme_bw()+
-  annotate(
-    "text", x = 6.5, y = 6, label = "Finale episodes marked with\nyellow triangles. Non-finale\nepisodes are blue circles."
-  )+
-  labs(
-    x = "Series",
-    y = "Viewership (in millions of views)", #look at this later alie and see if you still want a y-axis label
-    subtitle = "Finale Episodes see larger viewership over 7 days than Non-Finale Episodes",
-    title = "Tuning In When There's No Next Week: Finales tend to see \nHigher Viewership"
-  )+
-  scale_color_manual(values = c("steelblue", "goldenrod3"))
-
+viewership_plot
 ```
 
 To determine if finale episodes have a statistically significant higher viewership than non-finale episodes, we ran a two-sample difference in means one-sided t-test.
@@ -227,23 +122,7 @@ As seen in Figure 1, series 8 and subsequent series saw a massive dip in viewers
 #| fig-align: center
 #| fig-pos: "H"
 
-ratings |>
-  ggplot(mapping = aes(x = factor(series), y = viewers_7day))+
-  geom_jitter(width = 0.2, height = 0, shape = 1)+
-  geom_abline(
-    slope = 1.97278, intercept = -0.08880, col = "steelblue", linetype = "dashed", linewidth = 1
-              )+
-  geom_abline(
-    slope = 0.76636, intercept = 4.16083, col = "goldenrod3", linewidth = 1
-    )+
-  theme_bw()+
-  labs(
-    x = "Series",
-    y = "Viewership (in millions of views)",
-    subtitle = "Note: Our Linear Models have been projected over this graph for contrast",
-    title = "Viewership after 7 days of Episode Release by Series with Linear Models"
-  )
-  
+model_viewership_plot  
 ```
 We can see from this graph that both of the trend lines technically fit our data. However, we can see from this graph there is a strong association for the first 7 series between viewership and series, whereas the model with all 10 series is not as strong.
 
@@ -253,39 +132,11 @@ To compare these two models, we used $R^2$ values to determine how well they pre
 
 Summary Statistics:
 ```{r}
-
-##i really want to add the coefficents...
-
-reduced <- glance(bakeoff_early_fit)|>
-  select(r.squared, p.value)|>
-  mutate(
-    type = "reduced", .before = "r.squared",
-    r.squared = round(r.squared, digits = 3),
-    intercept = round(bakeoff_early_fit$coefficients[1], digits = 3),
-    slope = round(bakeoff_early_fit$coefficients[2], digits = 3)
-
-  )
-```
-
-```{r}
 #| label: tbl-linear-model-comp-and-summary2
 #| tbl-cap: "Summary Statisitcs for Comparitive Linear Models"
 #| tbl-pos: "H"
-  
-glance(bakeoff_fit)|>
-  select(r.squared, p.value)|>
-  mutate(
-    type = "full", .before = "r.squared",
-    r.squared = round(r.squared, digits = 3),
-    intercept = round(bakeoff_fit$coefficients[1], digits = 3),
-    slope = round(bakeoff_fit$coefficients[2], digits = 3)
-  )|>
-  full_join(reduced)|>
-  kable(
-    caption = "Summary Statisitcs for Comparitive Linear Models",
-    
-  )
 
+linear_model_comp_summary
 ```
 
 
