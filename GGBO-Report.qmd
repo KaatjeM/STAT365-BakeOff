@@ -14,7 +14,7 @@ author:
 affiliations:
     - id: 1
       name: Department of Statistics, Cal Poly - SLO
-abstract: "Any show’s success is fully reliant on its viewership and audience response. Determining the main factors that relate to an increase or decrease in viewers can be immensely beneficial for a show to sustain its profits and progress. Throughout each episode of the series in ‘The Great British Bake Off’, there are varying viewership trends. Some of the trends that seemed most critical to the success of the show was the viewership for Final versus Non-Finale episodes as well as the overall viewership for series 8 and after. Our analyses show evidence that the finale episode of each series has significantly more viewers than any other episode, with a difference in means being between 7.801 and 9.145 million viewers. During series 8 of ‘The Great British Bake Off’, the popular cooking underwent a few production changes that ultimately had notable consequences on the viewership of that series and the ones to follow. Our analysis of series 8, 9, and 10 compared to the earlier seasons shows that there is a considerable decline in viewership compared to the earlier series. These results can give producers of the show an idea of what will best draw the attention of their audience and make adjustments to up the viewership for ‘The Great British Bake Off’.
+abstract: "Unlocking the secret recipe for viewer engagement, this report delves into the dynamic world of television ratings. Any show’s success is fully reliant on its viewership and audience response. Determining the main factors related to an increase or decrease in viewers can be immensely beneficial for a show to sustain its profits and progress, and entertain viewers. Each episode of the series in ‘The Great British Bake Off’ has varying viewership trends. Some of the trends that seemed most critical to research in the show’s success were the viewership for Final versus Non-Finale episodes, as well as the overall viewership for series 8 and after. Our analyses show evidence that the finale episode of each series has significantly more viewers than any other episode, with non-finale episodes having between 7.75 to 9.09 million viewers and finale episodes having 7.27 to 12.51 million viewers. During series 8 of ‘The Great British Bake Off’, the popular cooking show saw a drop in viewership during this and subsequent series, which we suspect is due to production changes. Our analysis of series 8, 9, and 10 compared to the earlier seasons shows that there is a considerable decline in viewership compared to the earlier series. These results can give producers of the show an idea of what will best draw the attention of their audience and make adjustments to up the viewership for ‘The Great British Bake Off’.
 "
 format: 
   pdf:
@@ -65,8 +65,12 @@ non_finale_episodes <- ratings |>
   mutate(
     finale = FALSE
   )
+
 ratings_new <- non_finale_episodes |>
-  full_join(finale_episodes)
+  full_join(finale_episodes)|>
+  mutate(
+    finale = as.character(finale)
+  )
 
 ## Summary Stats for Q1
 non<- non_finale_episodes|>
@@ -76,8 +80,8 @@ non<- non_finale_episodes|>
     sd = round(sd(viewers_7day), digits = 3),
     median = round(median(viewers_7day), digits = 3),
     q1 = round(quantile(viewers_7day,probs = .25), digits = 3),
-    q3 = round(quantile(viewers_7day,probs = .75), digits = 3)
-    
+    q3 = round(quantile(viewers_7day,probs = .75), digits = 3),
+    observations = n()
   )
 
 fin <- finale_episodes|>
@@ -87,7 +91,8 @@ fin <- finale_episodes|>
     sd = round(sd(viewers_7day), digits = 3),
     median = round(median(viewers_7day), digits = 3),
     q1 = round(quantile(viewers_7day,probs = .25), digits = 3),
-    q3 = round(quantile(viewers_7day,probs = .75), digits = 3)
+    q3 = round(quantile(viewers_7day,probs = .75), digits = 3),
+    observations = n()
   )
 
 
@@ -109,7 +114,10 @@ ratings_subset <- ratings|>
 # you might choose to run your analysis here or in a separate script. Save your output for later.
 
 ## T-TEST
-t.test(formula = x ~ y, x = ratings_new$viewers_7day, y = ratings_new$finale, alternative = "two.sided")
+t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "less")
+
+t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "two.sided")
+
 
 
 ## LINEAR MODELS
@@ -121,24 +129,33 @@ bakeoff_fit <- lm(viewers_7day ~ series, data = ratings)
 
 ## Introduction {#intro}
 
-Season after season, “The Great British Bake Off” is loved by its fans – but are all series and episodes of the show created equal? Or is there a secret ingredient to the show’s success? “The Great British Bake Off” (GBBO) is a popular baking show that has run from 2010 to present, and features ten to twelve amateur bakers that hail from the Great Britain area. Each episode consists of three different challenges: the signature challenge, the technical challenge, and the showstopper challenge. Each episode, one baker is eliminated until there are three bakers left and then one series winner is chosen, the Star Baker. 
+Season after season, “The Great British Bake Off” is loved by its fans – but are all series and episodes of the show created equal? Or is there a secret ingredient to the shows success? “The Great British Bake Off” (GBBO) is a popular baking show that has run from 2010 to present, and features ten to twelve amateur bakers that hail from the Great Britain area. Each episode consists of three different challenges: the signature challenge, the technical challenge, and the showstopper challenge. Each episode, one baker is eliminated until there are three bakers left and then one series winner is chosen, the Star Baker. 
 We examined two different trends within viewership of this show. The first investigates if there is a statistically significant difference in finale viewership compared to other episodes. The second discusses the series 8 changes within production of the show and consequences on viewership. This report will include an overview of the statistical methods used to analyze the significance of our research questions, then give an insight on the results of these tests and how the results can be used in the future of “The Great British Bake Off”.
 
 ## Data and Methods
 
+### Data
 We sourced our data on The Great British Bakeoff from TidyTuesday [@tidy], an online community that posts weekly datasets to a public repository for people to share their visualizations and analyses. Included in The Great British Bakeoff package [@bakepack], posted on October 25, 2022, are four datasets, consisting of data from Wikipedia and PBS collected by Alison Hill, Chester Ismay, and Richard Iannone. The data includes information on individual episode challenges, the bakers themselves, the episode ratings, and further information on the episodes. This project only utilizes the "Bakers" and the  "Ratings" datasets. All of our data analysis will be done in R Version 4.3.2 [@RVersion] The Bakers dataset includes each of the 120 bakers that have appeared on the show from seasons 1-10 (2010-2019) as an observation and contains some basic personal information such as age and occupation, and multiple other quantitative variables regarding their baking challenge scores from their season. The Ratings dataset has each of the 94 aired episodes from seasons 1-10 as observations and records the episode's viewers in the millions for the first 7 days and the first 28 days. Specifically, we are interested in variable `viewers_7day` for each episode, which is the amount of views in millions within 7 days of an episode's release.
 
-### Data Cleaning and Manipulation
+### Methods
 
-Although we did not truly manipulate any of our variables, we did add one very important indicator variable. This indicator variable was used to determine if an episode was a finale episode or not, which we determined by grouping our data by series, arranging by episode number and then mutating to say finale = TRUE.
+#### Data Cleaning and Manipulation
 
-In addition, we subsetted different series of our data. To create our reduced linear model, shown in sections below, we subsetted the a section of the data to only included series one through seven.
+Although we did not truly manipulate any of our variables, we did add one very important indicator variable determining if an episode was a finale episode or not.
 
-### Statistical Analysis
+In addition, we subsetted different series of our data. To create our reduced linear model, shown in sections below, we subsetted a section of the data to only included series one through seven. 
+
+#### Statistical Analysis
 
 We used many different methods of analysis. Firstly, this included a t-test to determine if there was a statistically significant difference in viewership between finale and non-finale episodes. For this t-test, we examined a p-value and a confidence interval of the difference in means. Next, we applied two linear models to our data, one to a subset of our data from the first seven series, and a second linear model onto the full data. This linear model used series as a predictor for weekly viewers. As part of this analysis, we looked at the comparative r-squared values for both of the linear models, and the p-value from a model utility test. 
 
 ## Results {#results}
+
+### Finale versus Non-Finale Viewership
+
+Firstly, we examined if there was a difference in finale vs non-finale viewership. For this, we mutated our data to create a finale indicator variable. Note: this is a character variable. 
+
+ 
 
 ```{r}
 #| label: tbl-finale-viewership-summary
@@ -154,6 +171,11 @@ non |>
     caption = "Summary Stats for Non Finale and Finale Episodes"
   )
 ```
+As the table shows, the finale episodes have a higher mean and median viewership than non-finale episodes. However, finale episodes have more variation than the non-finale episodes, which does make sense, as there is much more non-finale episodes (84 non-finale episodes versus 10 finale episodes). 
+
+To get a better understanding of the distribution of viewership across the series, we made a scatterplot displaying viewership by series number.
+
+
 
 ```{r}
 #| label: fig-finale-viewership-plot
@@ -180,42 +202,23 @@ ratings_new|>
 
 ```
 
+To determine if finale episodes have a statistically significant higher viewership than non-finale episodes, we ran a two-sample difference in means one-sided t-test.
 
-```{r}
+t = -1.063, df = 10.21, p-value = 0.1561
+alternative hypothesis: true difference in means between group FALSE and group TRUE is less than 0
 
-##i really want to add the coefficents...
+With a p-value of 0.1561, we do not have statisitcally signifigant evidence to reject the null hypothesis. However, we will do further investigation.
 
-reduced <- glance(bakeoff_early_fit)|>
-  select(r.squared, p.value)|>
-  mutate(
-    type = "reduced",
-    r.squared = round(r.squared, digits = 3),
-    intercept = round(bakeoff_early_fit$coefficients[1], digits = 3),
-    slope = round(bakeoff_early_fit$coefficients[2], digits = 3)
+In addition to these results, our t-test also provides us with a difference in means confidence interval with 95% confidence. Please note that while we used a one-sided t-test for the calculation of the p-value, this confidence interval was calculated from a two sided t-test to find the difference in means. 
+95 percent confidence interval:
+ -4.528151  1.597604
 
-  )
-```
 
-```{r}
-#| label: tbl-linear-model-comp-and-summary2
-#| tbl-cap: "Summary Statisitcs for Comparitive Linear Models"
-#| tbl-pos: "H"
-  
-glance(bakeoff_fit)|>
-  select(r.squared, p.value)|>
-  mutate(
-    type = "full",
-    r.squared = round(r.squared, digits = 3),
-    intercept = round(bakeoff_fit$coefficients[1], digits = 3),
-    slope = round(bakeoff_fit$coefficients[2], digits = 3)
-  )|>
-  full_join(reduced)|>
-  kable(
-    caption = "Summary Statisitcs for Comparitive Linear Models",
-    
-  )
 
-```
+
+### Season 8 Viewership — Viewership Over Time
+
+As seen in Figure 1, series 8 and subsequent series saw a massive dip in viewership. This was a departure from the original trend that saw an increase in viewership for every series. It is worth noting that after the initial drop in series 8; series 9 and series 10 stayed consistent in viewership. To investigate this phenomenon further, we ran two simple linear regression models fitting viewership in the first 7 days by the series number. The first, shown in Figure 2 as the dashed blue line, is only using the first 7 series. The second model, shown as the solid orange line, uses all 10 series.
 
 ```{r}
 #| label: fig-linear-model-viewership-plot
@@ -242,17 +245,62 @@ ratings |>
   )
   
 ```
+We can see from this graph that both of the trend lines technically fit our data. However, we can see from this graph there is a strong association for the first 7 series between viewership and series, whereas the model with all 10 series is not as strong.
+
+To compare these two models, we used $R^2$ values to determine how well they predict the variation in viewership, and model utility test.
+
+
+
+Summary Statistics:
+```{r}
+
+##i really want to add the coefficents...
+
+reduced <- glance(bakeoff_early_fit)|>
+  select(r.squared, p.value)|>
+  mutate(
+    type = "reduced", .before = "r.squared",
+    r.squared = round(r.squared, digits = 3),
+    intercept = round(bakeoff_early_fit$coefficients[1], digits = 3),
+    slope = round(bakeoff_early_fit$coefficients[2], digits = 3)
+
+  )
+```
+
+```{r}
+#| label: tbl-linear-model-comp-and-summary2
+#| tbl-cap: "Summary Statisitcs for Comparitive Linear Models"
+#| tbl-pos: "H"
+  
+glance(bakeoff_fit)|>
+  select(r.squared, p.value)|>
+  mutate(
+    type = "full", .before = "r.squared",
+    r.squared = round(r.squared, digits = 3),
+    intercept = round(bakeoff_fit$coefficients[1], digits = 3),
+    slope = round(bakeoff_fit$coefficients[2], digits = 3)
+  )|>
+  full_join(reduced)|>
+  kable(
+    caption = "Summary Statisitcs for Comparitive Linear Models",
+    
+  )
+
+```
+
 
 ## Discussion {#discussion}
 
-Our results from our t-test p-value indicate there is statistically significant evidence that the mean viewership 7 days after an episode airs is different for finale, 9.89 million viewers, and non-finale episodes, 8.42 million viewers. Our t-test also provided a confidence interval for the true difference in means. After preforming a two sided t-test is, we are 95% confident that the true differnce in means is between (7.801, 9.145). This confidence interval suggests that we are 95% confident that the true difference in means of finale episodes is 7.801 million to  9.145 million 7 day viewers higher than non-finale episodes. We can conclude that there tends to be a correlation but not causation between mean viewership of finale and non-finale episodes. Although we conducted out tests using data from every episode of “the Great British Bake Off”, in order for us to draw conclusions about causation, we would need to be able to replicate each episode of each series. This process of replication would be extremely difficult because there would need to be subject blindness, but a large population is already aware of “The Great British Bake Off”. Despite not being able to make conclusions about causation, we speculate that this increase in viewership associated with Finale episodes has to do with the content and stakes of these specific episodes. Each Finale episode of the series, the series winner is determined after the final three bakers compete for the title of Star Baker. It is likely that this episode has a larger audience because more people are curious to see who wins the whole series rather than who is eliminated during the preceding, ordinary episodes.
+  Our results from our t-test p-value indicate there is statistically significant evidence that the mean viewership 7 days after an episode airs is different for finale, 9.89 million viewers, and non-finale episodes, 8.42 million viewers. Our t-test also provided a confidence interval for the true difference in means. After preforming a two sided t-test is, we are 95% confident that the true differnce in means is between (7.801, 9.145). This confidence interval suggests that we are 95% confident that the true difference in means of finale episodes is 7.801 million to  9.145 million 7 day viewers higher than non-finale episodes. We can conclude that there tends to be a correlation but not causation between mean viewership of finale and non-finale episodes. Although we conducted out tests using data from every episode of “the Great British Bake Off”, in order for us to draw conclusions about causation, we would need to be able to replicate each episode of each series. This process of replication would be extremely difficult because there would need to be subject blindness, but a large population is already aware of “The Great British Bake Off”. Despite not being able to make conclusions about causation, we speculate that this increase in viewership associated with Finale episodes has to do with the content and stakes of these specific episodes. Each Finale episode of the series, the series winner is determined after the final three bakers compete for the title of Star Baker. It is likely that this episode has a larger audience because more people are curious to see who wins the whole series rather than who is eliminated during the preceding, ordinary episodes.
+
+
  	The contrast in viewership in series 8 and beyond compared to preceding series is also a critical detail that producers of ‘The Great British Bake Off’ should take into consideration. Our models provide strong evidence that there was a notable decline in viewership of series 8 and beyond. Similar to the difference in Finale and Non-Finale episodes, we cannot conclude causation here, but we can speculate that this decline in viewers is associated with the change of hosts and judges that occurred for series 8. Given that the producers make the decision of who the emcees and judges of the show should be, they should be aware of the consequence these decisions have on viewership. This statistically significant difference in viewership in these series can be translated to a more practical significance as well. If viewership continues to stay at these decreased levels, the producers of the show need to know how much this will affect the shows revenue. Because this is an analysis based on observations, we cannot fully conclude causation between the production changes and decline in viewership, however we can see that there is a strong correlation between the two. This limits us from fully crediting the series 8 production changes with the decline in viewership, which means we can not recommend reversing those changes in order to bring viewership up to its previous numbers. 
 	It is important to note that we had census-like data because our datasets included information on every episode from all the series in “The Great British Bake Off” to date. Having access to all of this information greatly supports our conclusions and speculations because it allows us to generalize for future series. However, more episodes have been released since this time so updated data could lead to slightly different conclusions or even more research questions. 
 
 
 ## Conclusion {#conclusion}
 
-We explored the differences in viewership for Finale and Non-Finale episodes of “The Great British Bake Off”, as well as the production changes of series 8’s effect on the viewership from there on out. In order to answer these questions, we utilized t-tests and linear models to get a better sense of the data and their statistical significance. All in all, our analyses have shown that finale episodes of series have a significantly higher viewership than other episodes, and that since the production changes during series 8, the overall viewership of ‘The Great British Bake Off’ has declined. These differences in viewership have real consequences for the overall revenue of the show and how budgets are created for future series. Producers can take extra care when planning finale episodes, since that is when the largest audience is watching. Additionally, producers can try to negotiate for better airing times in an effort to bring back up viewership throughout the series. In the future, it would be intriguing to investigate the ratings based on seasons or baker backgrounds. Researching the baker's background affects the shows success will provide insight into the show's winners.
+We explored the differences in viewership for Finale and Non-Finale episodes of ‘The Great British Bake Off’, as well as the production changes of series 8’s effect on the viewership from there on out. In order to answer these questions, we utilized t-tests and linear models to get a better sense of the data and their statistical significance. All in all, our analyses have shown that finale episodes of series have a significantly higher viewership than other episodes, and that since the production changes during series 8, the overall viewership of ‘The Great British Bake Off’ has declined. These differences in viewership have real consequences for the overall revenue of the show and how budgets are created for future series. Producers can take extra care when planning finale episodes, since that is when the largest audience is watching. The differences in viewership can also affect the high esteem of the title of Star Baker. Additionally, producers can try to negotiate for better airing times in an effort to bring viewership throughout the series back up. In the future, it would be intriguing to investigate the ratings based on seasons or baker backgrounds. Furthermore, researching whether the baker's background affects the show’s success will provide insight into the show's winners and possibly even the viewership trends we explored.
 
 
 ## References {.unnumbered}
