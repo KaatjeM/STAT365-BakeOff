@@ -26,8 +26,8 @@ fin <- finale_episodes|>
     observations = n()
   )
 
-## tbl-finale-viewership-summary
-viewer_summary <- non |>
+## tbl-finale-viewership-summary (Table 1)
+viewership_summary <- non |>
   full_join(fin)|>
   kable(
     format = "pipe",
