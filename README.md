@@ -49,7 +49,13 @@ The `scripts` folder contains all .R scripts used for statisical analysis and vi
 
 ### Results
 
+The `results` folder contains all output of the results including figure, tables, and code output.
 
+-`Figure1.png` Finale tends to see higher viewership plot.
+-`Figure2.png` Viewership by Series overlaid with linear models plot.
+-`Table1.txt` Table of summary statistics for finale and non-finale episodes.
+-`Table2.txt` Table of comparative linear models.
+-`t-test_Output.png` Output of t-test for difference in mean viewership for finale and non-finale episodes, results of these test are detailed in the report.
 
 ## Packages used
 
