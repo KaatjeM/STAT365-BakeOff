@@ -35,6 +35,7 @@ viewership_summary <- non |>
     caption = "Summary Stats for Non Finale and Finale Episodes"
   )
 
+write.table(viewership_summary, here("results/Table1.txt"))
 
 ### T-tests
 # For p-value

@@ -1,0 +1,7 @@
+"x"
+"1" "Table: Summary Stats for Non Finale and Finale Episodes"
+"2" ""
+"3" "|type                |mean  |sd    |median |q1    |q3     |observations |"
+"4" "|:-------------------|:-----|:-----|:------|:-----|:------|:------------|"
+"5" "|Non Finale Episodes |8.424 |3.129 |8.945  |6.375 |10.160 |84           |"
+"6" "|Finale Episodes     |9.889 |4.223 |10.045 |7.417 |12.718 |10           |"

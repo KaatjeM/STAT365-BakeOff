@@ -41,3 +41,5 @@ linear_model_comp_summary <- glance(bakeoff_fit)|>
     caption = "Summary Statisitcs for Comparitive Linear Models",
     
   )
+
+write.table(linear_model_comp_summary, here("results/Tablel2.txt"))

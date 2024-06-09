@@ -1,0 +1,7 @@
+"x"
+"1" "Table: Summary Statisitcs for Comparitive Linear Models"
+"2" ""
+"3" "|type    | intercept| slope| r.squared| p.value|"
+"4" "|:-------|---------:|-----:|---------:|-------:|"
+"5" "|full    |     4.161| 0.766|     0.422|       0|"
+"6" "|reduced |    -0.089| 1.973|     0.931|       0|"
