@@ -36,6 +36,7 @@ The `documents` folder contains all documents and scripts relevent for the repor
 - `GBBO_Rough_Draft_Annotated` is the Rough Draft version of this report, with annotated feeback provided by Dr. Robinson.
 - `references.bib` contains the citations utitlized for the bibliography.
 - `title.tex` contains the formatting for the title page of the report.
+- `FinalReportEdits.pdf` is a documentation of all the edits made from the rough draft to the final draft version of the report paper.
 
 ### Scripts
 
