@@ -14,15 +14,15 @@ viewership_plot <- ratings_new|>
   )+
   labs(
     x = "Series",
-    y = "Viewership (in millions of views)", #look at this later alie and see if you still want a y-axis label
-    subtitle = "Finale Episodes see larger viewership over 7 days than Non-Finale Episodes",
+    y = "Viewership (in millions of views)", 
+    subtitle = "Finale Episodes see larger viewership over 7 days than \nNon-Finale Episodes",
     title = "Tuning In When There's No Next Week: Finales tend to see \nHigher Viewership"
   )+
   scale_color_manual(values = c("steelblue", "goldenrod3"))
 
 
 
-## fig-linear-model-viewership-plot (Figure 2)
+# fig-linear-model-viewership-plot (Figure 2)
 model_viewership_plot <- ratings |>
   ggplot(mapping = aes(x = factor(series), y = viewers_7day))+
   geom_jitter(width = 0.2, height = 0, shape = 1)+
@@ -36,6 +36,7 @@ model_viewership_plot <- ratings |>
   labs(
     x = "Series",
     y = "Viewership (in millions of views)",
-    subtitle = "Note: Our Linear Models have been projected over this graph for contrast",
-    title = "Viewership after 7 days of Episode Release by Series with Linear Models"
+    subtitle = "The Linear Models for series 1-7 and 1-10 projected for contrast",
+    title = "Viewership (in millions) after 7 days of Episode Release \nby Series with Linear Models"
   )
+
