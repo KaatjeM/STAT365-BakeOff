@@ -76,7 +76,7 @@ Firstly, we examined if there was a difference in finale vs non-finale viewershi
 
 ```{r}
 #| label: tbl-finale-viewership-summary
-#| tbl-cap: "This table displays summary statisitcs for non-finale episodes and finale episodes. These summary statistics are as follows: mean, standard deviation, median, quartile 1 and quartile 3."
+#| tbl-cap: ""
 #| tbl-pos: "H"
 
 viewership_summary
@@ -133,7 +133,7 @@ To compare these two models, we used $R^2$ values to determine how well they pre
 Summary Statistics:
 ```{r}
 #| label: tbl-linear-model-comp-and-summary2
-#| tbl-cap: "The following table displays summary statisitcs for our comparitive lienar models, including slope, intercept, R-squared, and standard deviation "
+#| tbl-cap: ""
 #| tbl-pos: "H"
 
 linear_model_comp_summary
