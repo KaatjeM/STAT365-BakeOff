@@ -52,4 +52,11 @@ paired_data <- ratings_new %>%
 # Paired
 t.test(x = paired_data$`FALSE`, y = paired_data$`TRUE`, paired = T, alternative = "less")
 # For CI
+<<<<<<< HEAD
+=======
+t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "two.sided")
+# Paired
+t.test(x = paired_data$`FALSE`, y = paired_data$`TRUE`, paired = T, alternative = "less")
+# For CI
+>>>>>>> 3c8c3b87b4b053ba20c63b7c36e74cdb0f0ccc90
 t.test(x = paired_data$`FALSE`, y = paired_data$`TRUE`, paired = T, alternative = "two.sided")
