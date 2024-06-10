@@ -37,6 +37,7 @@ linear_model_comp_summary <- glance(bakeoff_fit)|>
     slope = round(bakeoff_fit$coefficients[2], digits = 3)
   )|>
   full_join(reduced)|>
+  mutate(p.value = scales::pvalue(p.value)) |>
   kable(
     caption = "Summary Statisitcs for Comparitive Linear Models",
     

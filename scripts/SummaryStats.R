@@ -37,8 +37,19 @@ viewership_summary <- non |>
 
 write.table(viewership_summary, here("results/Table1.txt"))
 
+
+paired_data <- ratings_new %>% 
+  select(series, viewers_7day, finale) %>%
+  group_by(series, finale) %>%
+  summarize(avg_viewers = mean(viewers_7day)) %>%
+  pivot_wider(id_cols = series,
+              names_from = finale,
+              values_from = avg_viewers
+              )
+
 ### T-tests
 # For p-value
-t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "less")
+# Paired
+t.test(x = paired_data$`FALSE`, y = paired_data$`TRUE`, paired = T, alternative = "less")
 # For CI
-t.test(formula = ratings_new$viewers_7day ~ ratings_new$finale, alternative = "two.sided")
+t.test(x = paired_data$`FALSE`, y = paired_data$`TRUE`, paired = T, alternative = "two.sided")
